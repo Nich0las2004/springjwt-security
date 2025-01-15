@@ -29,4 +29,25 @@ public class JwtTokenProvider {
                 .getPayload()
                 .getSubject();
     }
+
+    public static List<String> extractRoles(String token){
+        return Jwts.parser()
+                .setSigningKey(SECRET)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("roles", List.class);
+    }
+
+    public static boolean validateToken(String token){
+        try {
+            Jwts.parser()
+                    .setSigningKey(SECRET)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
+    }
 }
