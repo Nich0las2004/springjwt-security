@@ -2,14 +2,16 @@ package com.myapp.SpringJWT_Security.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.List;
 
 @Component
 public class JwtTokenProvider {
-    private static final String SECRET = "my-secret-key";
+    private static final SecretKey SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private static final long EXPIRATION_TIME = 864_000_000;
 
     public static String generateToken(String username, List<String> roles){
