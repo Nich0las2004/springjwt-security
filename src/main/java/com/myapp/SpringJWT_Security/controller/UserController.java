@@ -4,14 +4,18 @@ import com.myapp.SpringJWT_Security.entity.User;
 import com.myapp.SpringJWT_Security.repository.UserRepository;
 import com.myapp.SpringJWT_Security.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -28,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("/api/login")
-    public String login() {
+    public ResponseEntity<?> login() {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             String username = authentication.getName();
@@ -44,7 +48,7 @@ public class UserController {
 
             System.out.println("JWT Token: " + jwtToken);
 
-            return "Welcome to the login page!";
+            return ResponseEntity.ok(jwtToken);
 
     }
 
@@ -53,6 +57,31 @@ public class UserController {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         return "User was registered!";
+    }
+
+    @GetMapping("/api/user")
+    public ResponseEntity<?> getUserDetails() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication == null) {
+            return ResponseEntity.ok("No user is logged in!");
+        }
+
+        String username = authentication.getName();
+        List<String> roles = authentication.getAuthorities()
+                .stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .toList();
+
+        User user = userRepository.findByUsername(username);
+
+        Map<String, Object> userDetails = new HashMap<>();
+
+        userDetails.put("username", user.getUsername());
+        userDetails.put("email", user.getEmail());
+        userDetails.put("roles", roles);
+
+        return ResponseEntity.ok(userDetails);
     }
 
 }
