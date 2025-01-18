@@ -12,13 +12,23 @@ import java.util.List;
 @Component
 public class JwtTokenProvider {
     private static final SecretKey SECRET = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    private static final long EXPIRATION_TIME = 864_000_000;
+    private static final long EXPIRATION_TIME = 15 * 60 * 1000;
+    private static final long REFRESH_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000;
 
     public static String generateToken(String username, List<String> roles){
         return Jwts.builder()
                 .subject(username)
                 .claim("roles", roles)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
+    }
+
+    public static String generateRefreshToken(String username, List<String> roles){
+        return Jwts.builder()
+                .setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION_TIME))
+                .claim("roles", roles)
                 .signWith(SignatureAlgorithm.HS512, SECRET)
                 .compact();
     }
