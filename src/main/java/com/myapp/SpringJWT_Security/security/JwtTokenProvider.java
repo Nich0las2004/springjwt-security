@@ -51,8 +51,11 @@ public class JwtTokenProvider {
                 .get("roles", List.class);
     }
 
-    public static boolean validateToken(String token){
+    public static boolean validateToken(String token, TokenBlacklist tokenBlacklist){
         try {
+            if (tokenBlacklist.isTokenBlacklisted(token)) {
+                return false;
+            }
             Jwts.parser()
                     .setSigningKey(SECRET)
                     .build()
