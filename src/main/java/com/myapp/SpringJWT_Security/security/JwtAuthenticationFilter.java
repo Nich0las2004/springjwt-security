@@ -18,16 +18,18 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenBlacklist tokenBlacklist;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, TokenBlacklist tokenBlacklist) {
         this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenBlacklist = tokenBlacklist;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = getJwtFromRequest(request);
 
-        if (token != null && JwtTokenProvider.validateToken(token)) {
+        if (token != null && JwtTokenProvider.validateToken(token, tokenBlacklist)) {
             try {
                 String username = JwtTokenProvider.extractUsername(token);
                 List<String> roles = JwtTokenProvider.extractRoles(token);
