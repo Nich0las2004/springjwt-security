@@ -42,13 +42,18 @@ public class UserController {
                     .toList();
 
             String jwtToken = jwtTokenProvider.generateToken(username, roles);
+            String jwtRefreshToken = jwtTokenProvider.generateRefreshToken(username, roles);
 
             System.out.println(username);
             System.out.println(roles);
 
+            Map<String, String> tokens = new HashMap<>();
+            tokens.put("accessToken", jwtToken);
+            tokens.put("refreshToken", jwtRefreshToken);
+
             System.out.println("JWT Token: " + jwtToken);
 
-            return ResponseEntity.ok(jwtToken);
+            return ResponseEntity.ok(tokens);
 
     }
 
